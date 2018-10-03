@@ -81,8 +81,7 @@ function eventInitialization() {
 function createDataSupport() {
   var object = new THREE.Mesh(
     dataGeometry,
-    new THREE.MeshBasicMaterial({
-      //if highlight problem replace with MeshLambertMaterial
+    new THREE.MeshLambertMaterial({
       color: Math.random() * 0xffffff,
       transparent: true,
       blending: THREE.AdditiveBlending
@@ -102,9 +101,8 @@ function init() {
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
-  scene.add(new THREE.AmbientLight(0x555555));
-  var light = new THREE.SpotLight(0xffffff, 1.5);
-  light.position.set(0, 500, 2000);
+  var light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(1, 1, 1).normalize();
   scene.add(light);
 
   for (var i = 0; i < 200; i++) {
