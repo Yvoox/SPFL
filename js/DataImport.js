@@ -33,6 +33,18 @@ class Bouquet {
   }
 }
 
+function loadJSON(path, callback) {
+  var xobj = new XMLHttpRequest();
+  xobj.overrideMimeType("application/json");
+  xobj.open("GET", path, true);
+  xobj.onreadystatechange = function() {
+    if (xobj.readyState == 4 && xobj.status == "200") {
+      callback(xobj.responseText);
+    }
+  };
+  xobj.send(null);
+}
+
 function createDataSet(path) {
   let bouquets = [];
   var flower1 = new Flower("123", "flower1", "blue");
@@ -46,6 +58,13 @@ function createDataSet(path) {
   bouquets.push(bouquet1);
   bouquets.push(bouquet2);
   bouquets.push(bouquet3);
+
+  // TODO: foreach file into ../data/008/objects -> loadJSON & create flowers and bouquet
+
+  loadJSON("../data/008/objects/008004.json", function(response) {
+    var file = JSON.parse(response);
+    //console.log("JSON FILE:" + JSON.stringify(file.data.FLOWER));
+  });
 
   return bouquets;
 }

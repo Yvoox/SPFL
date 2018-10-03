@@ -6,12 +6,17 @@ function onWindowResize() {
 
 function onclick(event) {
   var intersects = raycaster.intersectObjects(dataPoints, true);
+
   if (intersects.length > 0) {
     selectedObject = intersects[0];
-    console.log("SELECTED OBJECT : " + JSON.stringify(selectedObject, 4, null));
+
+    console.log(
+      "SELECTED OBJECT: " +
+        JSON.stringify(selectedObject.object.bouquetId, 4, null)
+    );
     hudBitmap.clearRect(0, 0, width, height);
     hudBitmap.fillText(
-      "Point" + JSON.stringify(selectedObject.point, 4, null),
+      "Point " + selectedObject.object.bouquetId,
       width / 2,
       height / 2
     );
@@ -85,7 +90,7 @@ function eventInitialization() {
   renderer.domElement.addEventListener("click", onclick, true);
 }
 
-function createDataSupport() {
+function createDataSupport(bouquet) {
   var object = new THREE.Mesh(
     dataGeometry,
     new THREE.MeshLambertMaterial({
@@ -94,9 +99,12 @@ function createDataSupport() {
       blending: THREE.AdditiveBlending
     })
   );
+
   object.position.x = Math.random() * window.innerWidth;
   object.position.y = Math.random() * window.innerHeight;
   object.position.z = Math.random() * 800 - 400;
+  object["bouquetId"] = bouquet.id;
+
   dataPoints.push(object);
   scene.add(object);
 }
@@ -155,7 +163,7 @@ function init() {
 
   bouquets = createDataSet("123");
 
-  bouquets.map(() => createDataSupport());
+  bouquets.map(x => createDataSupport(x));
 
   renderer = new THREE.WebGLRenderer({ antialias: false });
   renderer.setPixelRatio(window.devicePixelRatio);
