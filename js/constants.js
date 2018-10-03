@@ -14,3 +14,4 @@ let cpt = 0;
 
 let width = window.innerWidth;
 let height = window.innerHeight;
+let bouquets = [];

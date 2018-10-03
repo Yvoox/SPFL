@@ -10,7 +10,11 @@ function onclick(event) {
     selectedObject = intersects[0];
     console.log("SELECTED OBJECT : " + JSON.stringify(selectedObject, 4, null));
     hudBitmap.clearRect(0, 0, width, height);
-    hudBitmap.fillText("Test", width / 2, height / 2);
+    hudBitmap.fillText(
+      "Point" + JSON.stringify(selectedObject.point, 4, null),
+      width / 2,
+      height / 2
+    );
   } else {
     console.log("NO SELECTED OBJECT");
     hudBitmap.clearRect(0, 0, width, height);
@@ -102,8 +106,8 @@ function hudInit() {
   hudCanvas = document.createElement("canvas");
 
   // Again, set dimensions to fit the screen.
-  hudCanvas.width = width;
-  hudCanvas.height = height;
+  hudCanvas.width = 1024;
+  hudCanvas.height = 256;
 
   // Get 2D context and draw something supercool.
   hudBitmap = hudCanvas.getContext("2d");
@@ -149,9 +153,9 @@ function init() {
   light.position.set(1, 1, 1).normalize();
   scene.add(light);
 
-  for (var i = 0; i < 200; i++) {
-    createDataSupport();
-  }
+  bouquets = createDataSet("123");
+
+  bouquets.map(() => createDataSupport());
 
   renderer = new THREE.WebGLRenderer({ antialias: false });
   renderer.setPixelRatio(window.devicePixelRatio);
