@@ -4,6 +4,63 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function focusOnPoint(object) {
+  var ignore1 = new THREE.Vector3();
+  var ignore2 = new THREE.Vector3();
+  var front_vector = new THREE.Vector3();
+
+  camera.matrix.extractBasis(ignore1, ignore2, front_vector);
+  camera.position.copy(object.position);
+
+  camera.position.addScaledVector(front_vector, 100);
+
+  //controls.target.copy(object.position);
+}
+
+function deleteObjectByName(objName) {
+  while (scene.getObjectByName(objName)) {
+    var selectedObject = scene.getObjectByName(objName);
+    scene.remove(selectedObject);
+  }
+
+  animate();
+}
+
+function drawSplines(selectedObject) {
+  deleteObjectByName("link");
+  sx = selectedObject.position.x;
+  sy = selectedObject.position.y;
+  sz = selectedObject.position.z;
+  var start = new THREE.Vector3(sx, sy, sz);
+  dataPoints.map(i => {
+    ex = i.position.x;
+    ey = i.position.y;
+    ez = i.position.z;
+
+    dx = Math.pow(sx - ex, 2);
+    dy = Math.pow(sy - ey, 2);
+    dz = Math.pow(sz - ez, 2);
+    distance = Math.sqrt(dx + dy + dz);
+    if (distance < 400 && distance != 0) {
+      var end = new THREE.Vector3(ex, ey, ez);
+      var middle = new THREE.Vector3(
+        (ex + sx) / 2 + 50,
+        (ey + sy) / 2 + 50,
+        (ez + sz) / 2 + 50
+      );
+
+      var curveQuad = new THREE.QuadraticBezierCurve3(start, middle, end);
+      var tube = new THREE.TubeGeometry(curveQuad, 40, 1, 20, false);
+      var mesh = new THREE.Mesh(
+        tube,
+        new THREE.MeshNormalMaterial({ opacity: 0.6, transparent: true })
+      );
+      mesh.name = "link";
+      scene.add(mesh);
+    }
+  });
+}
+
 function onclick(event) {
   var intersects = raycaster.intersectObjects(dataPoints, true);
 
@@ -14,15 +71,29 @@ function onclick(event) {
       "SELECTED OBJECT: " +
         JSON.stringify(selectedObject.object.bouquetId, 4, null)
     );
+
+    focusOnPoint(selectedObject.object);
+    drawSplines(selectedObject.object);
     hudBitmap.clearRect(0, 0, width, height);
     hudBitmap.fillText(
       "Point " + selectedObject.object.bouquetId,
       width / 2,
       height / 2
     );
+    //DRAW IMAGE
+
+    var image = new Image(1024, 1024);
+    image.crossOrigin = "anonymous";
+    image.onload = drawImageActualSize;
+    image.src = "../img/data_img/" + selectedObject.object.bouquetId + ".png";
+
+    function drawImageActualSize() {
+      hudBitmap.drawImage(this, 0, 0, 1024 / 5, 1024 / 5);
+    }
   } else {
     console.log("NO SELECTED OBJECT");
     hudBitmap.clearRect(0, 0, width, height);
+    deleteObjectByName("link");
   }
 }
 
@@ -182,6 +253,14 @@ function init() {
 function animate() {
   stats.update();
   controls.update();
+  /*  console.log(
+    "X: " +
+      camera.position.x +
+      " Y: " +
+      camera.position.y +
+      " Z: " +
+      camera.position.z
+  );*/
   raycaster.setFromCamera(mouse, camera);
 
   // Render scene.
@@ -199,6 +278,7 @@ function animate() {
 
 function render() {
   controls.update();
+
   raycaster.setFromCamera(mouse, camera);
   renderer.render(scene, camera);
   renderer.render(sceneHUD, cameraHUD);
