@@ -161,7 +161,8 @@ function init() {
   light.position.set(1, 1, 1).normalize();
   scene.add(light);
 
-  bouquets = createDataSet("123");
+  bouquets = createDataSet();
+  console.log("BOUQUETS PRE MAPPING:" + JSON.stringify(bouquets, 4, null));
 
   bouquets.map(x => createDataSupport(x));
 

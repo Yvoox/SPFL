@@ -17,14 +17,23 @@ class Flower {
 }
 
 class Bouquet {
-  constructor(id, flowers) {
+  constructor(_id, id, nbFlowers, Flowers) {
+    this._id = _id;
     this.id = id;
-    this.flowers = flowers;
+    this.nbFlowers = nbFlowers;
+    this.Flowers = Flowers;
   }
 
   toString() {
     let toString =
-      "ID: " + this.id + " FLOWERS: " + JSON.stringify(this.flowers, 4, null);
+      "_id: " +
+      this._id +
+      " id: " +
+      this.id +
+      " nbFlower: " +
+      this.nbFlowers +
+      " Flower: " +
+      JSON.stringify(this.Flowers, null, 4);
     return toString;
   }
 
@@ -45,26 +54,47 @@ function loadJSON(path, callback) {
   xobj.send(null);
 }
 
-function createDataSet(path) {
+function createDataSet() {
   let bouquets = [];
-  var flower1 = new Flower("123", "flower1", "blue");
-  var flower2 = new Flower("234", "flower2", "red");
-  var flower3 = new Flower("345", "flower3", "yellow");
+  //var flower1 = new Flower("123", "flower1", "blue");
+  //var flower2 = new Flower("234", "flower2", "red");
+  //var flower3 = new Flower("345", "flower3", "yellow");
 
-  var bouquet1 = new Bouquet("1", { flower1, flower2 });
-  var bouquet2 = new Bouquet("2", { flower1, flower3 });
-  var bouquet3 = new Bouquet("3", { flower1, flower3 });
+  //var bouquet1 = new Bouquet("1", { flower1, flower2 });
+  //var bouquet2 = new Bouquet("2", { flower1, flower3 });
+  //var bouquet3 = new Bouquet("3", { flower1, flower3 });
 
-  bouquets.push(bouquet1);
-  bouquets.push(bouquet2);
-  bouquets.push(bouquet3);
+  //bouquets.push(bouquet1);
+  //bouquets.push(bouquet2);
+  //bouquets.push(bouquet3);
 
-  // TODO: foreach file into ../data/008/objects -> loadJSON & create flowers and bouquet
+  var request = new XMLHttpRequest();
 
-  loadJSON("../data/008/objects/008004.json", function(response) {
-    var file = JSON.parse(response);
-    //console.log("JSON FILE:" + JSON.stringify(file.data.FLOWER));
-  });
+  request.open("GET", "http://127.0.0.1:3000/bouquets", false);
+  request.onload = function() {
+    var data = JSON.parse(this.response);
 
+    if (request.status >= 200 && request.status < 400) {
+      data.forEach(bouquet => {
+        /*  console.log("B _ID:" + bouquet._id);
+        console.log("B ID:" + bouquet.id);
+        console.log("B nbFlowers:" + bouquet.nbFlowers);
+        console.log("B Flowers:" + bouquet.Flowers);*/
+
+        var incBouquet = new Bouquet(
+          bouquet._id,
+          bouquet.id,
+          bouquet.nbFlowers,
+          bouquet.Flowers
+        );
+        bouquets.push(incBouquet);
+      });
+      console.log("BOUQUETS:" + JSON.stringify(bouquets, 4, null));
+    } else {
+      console.log("error status : " + request.status);
+    }
+  };
+
+  request.send();
   return bouquets;
 }
