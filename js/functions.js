@@ -4,7 +4,38 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function onSelectedObject(position) {}
+function onSelectedObject(selectedObject) {
+  focusOnPoint(selectedObject.position);
+
+  glow.traverse(function(object) {
+    let box = new THREE.Box3().setFromObject(selectedObject);
+    let sphere = box.getBoundingSphere();
+    let centerPoint = sphere.center;
+    object.position.x = centerPoint.x;
+    object.position.y = centerPoint.y;
+    object.position.z = centerPoint.z;
+
+    object.visible = true;
+  });
+
+  drawSplines(selectedObject);
+  hudBitmap.clearRect(0, 0, width, height);
+  hudBitmap.fillText(
+    "Point " + selectedObject.bouquetId,
+    width / 2,
+    height / 2
+  );
+  //DRAW IMAGE
+
+  var image = new Image(1024, 1024);
+  image.crossOrigin = "anonymous";
+  image.onload = drawImageActualSize;
+  image.src = "../img/data_img/" + selectedObject.bouquetId + ".png";
+
+  function drawImageActualSize() {
+    hudBitmap.drawImage(this, 0, 0, 1024 / 5, 1024 / 5);
+  }
+}
 
 function focusOnPoint(position) {
   var ignore1 = new THREE.Vector3();
@@ -76,36 +107,7 @@ function onclick(event) {
         JSON.stringify(selectedObject.object.bouquetId, 4, null)
     );
 
-    focusOnPoint(selectedObject.object.position);
-
-    glow.traverse(function(object) {
-      let box = new THREE.Box3().setFromObject(selectedObject.object);
-      let sphere = box.getBoundingSphere();
-      let centerPoint = sphere.center;
-      object.position.x = centerPoint.x;
-      object.position.y = centerPoint.y;
-      object.position.z = centerPoint.z;
-
-      object.visible = true;
-    });
-
-    drawSplines(selectedObject.object);
-    hudBitmap.clearRect(0, 0, width, height);
-    hudBitmap.fillText(
-      "Point " + selectedObject.object.bouquetId,
-      width / 2,
-      height / 2
-    );
-    //DRAW IMAGE
-
-    var image = new Image(1024, 1024);
-    image.crossOrigin = "anonymous";
-    image.onload = drawImageActualSize;
-    image.src = "../img/data_img/" + selectedObject.object.bouquetId + ".png";
-
-    function drawImageActualSize() {
-      hudBitmap.drawImage(this, 0, 0, 1024 / 5, 1024 / 5);
-    }
+    onSelectedObject(selectedObject.object);
   } else {
     console.log("NO SELECTED POINT");
     glow.traverse(function(object) {
@@ -122,8 +124,16 @@ function onclick(event) {
     json = selectedLink.object.geometry.toJSON();
     //endPoint = JSON.parse(json.path.v2);
     console.log("LINK INTERSECT : " + JSON.stringify(json.path.v2));
-    console.log("X : " + JSON.stringify(json.path.v2.x));
-    focusOnPoint(json.path.v2);
+    //focusOnPoint(json.path.v2);
+    dataPoints.map(i => {
+      if (JSON.stringify(i.position) == JSON.stringify(json.path.v2)) {
+        console.log("Point Match with destination link : " + JSON.stringify(i));
+
+        onSelectedObject(i);
+      } else {
+        console.log("Any point match");
+      }
+    });
   } else {
     console.log("NO SELECTED LINK");
   }
