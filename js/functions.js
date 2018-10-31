@@ -4,13 +4,15 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function focusOnPoint(object) {
+function onSelectedObject(position) {}
+
+function focusOnPoint(position) {
   var ignore1 = new THREE.Vector3();
   var ignore2 = new THREE.Vector3();
   var front_vector = new THREE.Vector3();
 
   camera.matrix.extractBasis(ignore1, ignore2, front_vector);
-  camera.position.copy(object.position);
+  camera.position.copy(position);
 
   camera.position.addScaledVector(front_vector, 100);
 
@@ -20,6 +22,7 @@ function focusOnPoint(object) {
 function deleteObjectByName(objName) {
   while (scene.getObjectByName(objName)) {
     var selectedObject = scene.getObjectByName(objName);
+    selectedObject.geometry.dispose();
     scene.remove(selectedObject);
   }
 
@@ -55,6 +58,7 @@ function drawSplines(selectedObject) {
         tube,
         new THREE.MeshNormalMaterial({ opacity: 0.6, transparent: true })
       );
+      currentLinks.push(mesh);
       mesh.name = "link";
       scene.add(mesh);
     }
@@ -72,7 +76,19 @@ function onclick(event) {
         JSON.stringify(selectedObject.object.bouquetId, 4, null)
     );
 
-    focusOnPoint(selectedObject.object);
+    focusOnPoint(selectedObject.object.position);
+
+    glow.traverse(function(object) {
+      let box = new THREE.Box3().setFromObject(selectedObject.object);
+      let sphere = box.getBoundingSphere();
+      let centerPoint = sphere.center;
+      object.position.x = centerPoint.x;
+      object.position.y = centerPoint.y;
+      object.position.z = centerPoint.z;
+
+      object.visible = true;
+    });
+
     drawSplines(selectedObject.object);
     hudBitmap.clearRect(0, 0, width, height);
     hudBitmap.fillText(
@@ -91,9 +107,25 @@ function onclick(event) {
       hudBitmap.drawImage(this, 0, 0, 1024 / 5, 1024 / 5);
     }
   } else {
-    console.log("NO SELECTED OBJECT");
+    console.log("NO SELECTED POINT");
+    glow.traverse(function(object) {
+      object.visible = false;
+    });
     hudBitmap.clearRect(0, 0, width, height);
     deleteObjectByName("link");
+  }
+
+  var intersects_link = raycaster.intersectObjects(currentLinks, true);
+  if (intersects_link.length > 0) {
+    selectedLink = intersects_link[0];
+
+    json = selectedLink.object.geometry.toJSON();
+    //endPoint = JSON.parse(json.path.v2);
+    console.log("LINK INTERSECT : " + JSON.stringify(json.path.v2));
+    console.log("X : " + JSON.stringify(json.path.v2.x));
+    focusOnPoint(json.path.v2);
+  } else {
+    console.log("NO SELECTED LINK");
   }
 }
 
@@ -170,10 +202,13 @@ function createDataSupport(bouquet) {
       blending: THREE.AdditiveBlending
     })
   );
+  randX = Math.random() * window.innerWidth;
+  randY = Math.random() * window.innerHeight;
+  randZ = Math.random() * 800 - 400;
 
-  object.position.x = Math.random() * window.innerWidth;
-  object.position.y = Math.random() * window.innerHeight;
-  object.position.z = Math.random() * 800 - 400;
+  object.position.x = randX;
+  object.position.y = randY;
+  object.position.z = randZ;
   object["bouquetId"] = bouquet.id;
 
   dataPoints.push(object);
@@ -236,6 +271,16 @@ function init() {
   console.log("BOUQUETS PRE MAPPING:" + JSON.stringify(bouquets, 4, null));
 
   bouquets.map(x => createDataSupport(x));
+
+  glow.position.x = 0;
+  glow.position.y = 0;
+  glow.position.z = 0;
+
+  scene.add(glow);
+
+  glow.traverse(function(object) {
+    object.visible = false;
+  });
 
   renderer = new THREE.WebGLRenderer({ antialias: false });
   renderer.setPixelRatio(window.devicePixelRatio);
