@@ -4,6 +4,10 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function nearestPow2(aSize) {
+  return Math.pow(2, Math.round(Math.log(aSize) / Math.log(2)));
+}
+
 function onSelectedObject(selectedObject) {
   focusOnPoint(selectedObject.position);
 
@@ -33,7 +37,7 @@ function onSelectedObject(selectedObject) {
   image.src = "../img/data_img/" + selectedObject.bouquetId + ".png";
 
   function drawImageActualSize() {
-    hudBitmap.drawImage(this, 0, 0, 1024 / 5, 1024 / 5);
+    hudBitmap.drawImage(this, 10, 10, width / 7, height / 4);
   }
 }
 
@@ -102,11 +106,6 @@ function onclick(event) {
   if (intersects.length > 0) {
     selectedObject = intersects[0];
 
-    console.log(
-      "SELECTED OBJECT: " +
-        JSON.stringify(selectedObject.object.bouquetId, 4, null)
-    );
-
     onSelectedObject(selectedObject.object);
   } else {
     console.log("NO SELECTED POINT");
@@ -122,16 +121,10 @@ function onclick(event) {
     selectedLink = intersects_link[0];
 
     json = selectedLink.object.geometry.toJSON();
-    //endPoint = JSON.parse(json.path.v2);
-    console.log("LINK INTERSECT : " + JSON.stringify(json.path.v2));
-    //focusOnPoint(json.path.v2);
     dataPoints.map(i => {
       if (JSON.stringify(i.position) == JSON.stringify(json.path.v2)) {
-        console.log("Point Match with destination link : " + JSON.stringify(i));
-
         onSelectedObject(i);
       } else {
-        console.log("Any point match");
       }
     });
   } else {
@@ -230,8 +223,8 @@ function hudInit() {
   hudCanvas = document.createElement("canvas");
 
   // Again, set dimensions to fit the screen.
-  hudCanvas.width = 1024;
-  hudCanvas.height = 256;
+  hudCanvas.width = width;
+  hudCanvas.height = height;
 
   // Get 2D context and draw something supercool.
   hudBitmap = hudCanvas.getContext("2d");
@@ -273,12 +266,12 @@ function init() {
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
-  var light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(1, 1, 1).normalize();
+  //var light = new THREE.DirectionalLight(0xffffff, 1);
+  var light = new THREE.AmbientLight(0xffffff);
+  //  light.position.set(1, 1, 1);
   scene.add(light);
 
   bouquets = createDataSet();
-  console.log("BOUQUETS PRE MAPPING:" + JSON.stringify(bouquets, 4, null));
 
   bouquets.map(x => createDataSupport(x));
 
@@ -308,14 +301,7 @@ function init() {
 function animate() {
   stats.update();
   controls.update();
-  /*  console.log(
-    "X: " +
-      camera.position.x +
-      " Y: " +
-      camera.position.y +
-      " Z: " +
-      camera.position.z
-  );*/
+
   raycaster.setFromCamera(mouse, camera);
 
   // Render scene.

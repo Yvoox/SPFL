@@ -89,7 +89,6 @@ function createDataSet() {
         );
         bouquets.push(incBouquet);
       });
-      console.log("BOUQUETS:" + JSON.stringify(bouquets, 4, null));
     } else {
       console.log("error status : " + request.status);
     }

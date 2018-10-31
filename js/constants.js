@@ -14,8 +14,9 @@ var dataGeometry = new THREE.SphereGeometry(15, 20, 20);
 let hudTexture, cameraHUD, hudBitmap, hudCanvas, sceneHUD;
 let cpt = 0;
 
-let width = window.innerWidth;
-let height = window.innerHeight;
+let width = nearestPow2(window.innerWidth);
+let height = nearestPow2(window.innerHeight);
+
 let bouquets = [];
 
 let vertShader =
