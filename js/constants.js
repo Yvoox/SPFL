@@ -36,3 +36,9 @@ let glowMaterial = new THREE.ShaderMaterial({
 
 let glowingBall = new THREE.SphereGeometry(10, 20, 20);
 let glow = new THREE.Mesh(glowingBall, glowMaterial);
+
+let cameraDep = new THREE.Vector3(500, 500, 500);
+let interToken = false;
+
+let t = 0; //t for linear interpolation
+let dt = 0.02; //dt for linear interpolation

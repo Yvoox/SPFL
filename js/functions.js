@@ -4,12 +4,31 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+//TODO MODIFY TOSCREENXY
+function toScreenXY(position, camera) {
+  var pos = position.clone();
+  var projScreenMat = new THREE.Matrix4();
+  projScreenMat.multiply(camera.projectionMatrix, camera.matrixWorldInverse);
+  projScreenMat.multiplyVector3(pos);
+
+  return pos;
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function ease(t) {
+  return t * t;
+}
+
 function nearestPow2(aSize) {
   return Math.pow(2, Math.round(Math.log(aSize) / Math.log(2)));
 }
 
 function onSelectedObject(selectedObject) {
-  focusOnPoint(selectedObject.position);
+  interToken = true;
+  cameraDep = toScreenXY(selectedObject.position, camera);
 
   glow.traverse(function(object) {
     let box = new THREE.Box3().setFromObject(selectedObject);
@@ -58,6 +77,7 @@ function deleteObjectByName(objName) {
   while (scene.getObjectByName(objName)) {
     var selectedObject = scene.getObjectByName(objName);
     selectedObject.geometry.dispose();
+    selectedObject.material.dispose();
     scene.remove(selectedObject);
   }
 
@@ -296,6 +316,8 @@ function init() {
   container.appendChild(stats.dom);
 
   raycaster = new THREE.Raycaster();
+  console.log("CAMERA POSITION : " + JSON.stringify(camera.position));
+  console.log("CAMERA POSITION : " + JSON.stringify(cameraDep));
 }
 
 function animate() {
@@ -305,6 +327,34 @@ function animate() {
   raycaster.setFromCamera(mouse, camera);
 
   // Render scene.
+
+  if (
+    JSON.stringify(camera.position) != JSON.stringify(cameraDep) &&
+    interToken
+  ) {
+    console.log(
+      "CAMERA POSITION " +
+        JSON.stringify(camera.position) +
+        "CAMERADEP " +
+        JSON.stringify(cameraDep) +
+        " t " +
+        t
+    );
+    var newX = lerp(camera.position.x, cameraDep.x, ease(t));
+    var newY = lerp(camera.position.y, cameraDep.y, ease(t));
+    var newZ = lerp(camera.position.z, cameraDep.z, ease(t));
+
+    //dep = new THREE.Vector3(newX, newY, newZ);
+    //focusOnPoint(dep);
+    camera.position.set(newX, newY, newZ);
+
+    t += dt;
+
+    //if (t >= 1) focusOnPoint(cameraDep);
+  } else {
+    t = 0;
+    interToken = false;
+  }
 
   renderer.render(scene, camera);
 
