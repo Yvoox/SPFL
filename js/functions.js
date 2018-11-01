@@ -6,10 +6,24 @@ function onWindowResize() {
 
 //TODO MODIFY TOSCREENXY
 function toScreenXY(position, camera) {
-  var pos = position.clone();
+  /*var pos = position.clone();
+  pos.y = pos.y - 10;
+  console.log("CAMERA : " + JSON.stringify(camera.fov));
+
   var projScreenMat = new THREE.Matrix4();
   projScreenMat.multiply(camera.projectionMatrix, camera.matrixWorldInverse);
-  projScreenMat.multiplyVector3(pos);
+  projScreenMat.multiplyVector3(pos);*/
+
+  var fov = camera.fov * (Math.PI / 180);
+  var objectSize = 20;
+
+  var pos = new THREE.Vector3(
+    position.x + Math.abs(objectSize / Math.sin(fov / 2)),
+    position.y + Math.abs(objectSize / Math.sin(fov / 2)),
+    position.z + Math.abs(objectSize / Math.sin(fov / 2))
+  );
+
+  console.log("POS : " + JSON.stringify(pos));
 
   return pos;
 }
@@ -125,6 +139,7 @@ function onclick(event) {
 
   if (intersects.length > 0) {
     selectedObject = intersects[0];
+    t = 0;
 
     onSelectedObject(selectedObject.object);
   } else {
@@ -139,6 +154,7 @@ function onclick(event) {
   var intersects_link = raycaster.intersectObjects(currentLinks, true);
   if (intersects_link.length > 0) {
     selectedLink = intersects_link[0];
+    t = 0;
 
     json = selectedLink.object.geometry.toJSON();
     dataPoints.map(i => {
@@ -329,7 +345,9 @@ function animate() {
   // Render scene.
 
   if (
-    JSON.stringify(camera.position) != JSON.stringify(cameraDep) &&
+    camera.position.x != cameraDep.x &&
+    camera.position.y != cameraDep.y &&
+    camera.position.z != cameraDep.z &&
     interToken
   ) {
     console.log(

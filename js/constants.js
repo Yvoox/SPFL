@@ -41,4 +41,4 @@ let cameraDep = new THREE.Vector3(500, 500, 500);
 let interToken = false;
 
 let t = 0; //t for linear interpolation
-let dt = 0.02; //dt for linear interpolation
+let dt = 0.001; //dt for linear interpolation
