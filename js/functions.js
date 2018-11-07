@@ -15,7 +15,7 @@ function toScreenXY(position, camera) {
   projScreenMat.multiplyVector3(pos);*/
 
   var fov = camera.fov * (Math.PI / 180);
-  var objectSize = 20;
+  var objectSize = 100; //to change the zoom distance
 
   var pos = new THREE.Vector3(
     position.x + Math.abs(objectSize / Math.sin(fov / 2)),
@@ -90,9 +90,11 @@ function focusOnPoint(position) {
 function deleteObjectByName(objName) {
   while (scene.getObjectByName(objName)) {
     var selectedObject = scene.getObjectByName(objName);
+
+    scene.remove(selectedObject);
     selectedObject.geometry.dispose();
     selectedObject.material.dispose();
-    scene.remove(selectedObject);
+    selectedObject = undefined;
   }
 
   animate();
@@ -350,14 +352,6 @@ function animate() {
     camera.position.z != cameraDep.z &&
     interToken
   ) {
-    console.log(
-      "CAMERA POSITION " +
-        JSON.stringify(camera.position) +
-        "CAMERADEP " +
-        JSON.stringify(cameraDep) +
-        " t " +
-        t
-    );
     var newX = lerp(camera.position.x, cameraDep.x, ease(t));
     var newY = lerp(camera.position.y, cameraDep.y, ease(t));
     var newZ = lerp(camera.position.z, cameraDep.z, ease(t));
