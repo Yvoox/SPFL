@@ -12,8 +12,7 @@ function createCoordonates(bouquet) {
       if (JSON.stringify(it).includes(species)) coeff += index;
     });
   });
-
-  return coeff;
+  return coeff * bouquet.nbFlowers;
 }
 
 //TODO MODIFY TOSCREENXY
@@ -69,10 +68,27 @@ function onSelectedObject(selectedObject) {
 
   drawSplines(selectedObject);
   hudBitmap.clearRect(0, 0, width, height);
+
+  hudBitmap.fillStyle = "rgba(128, 128, 128, 0.4)";
+  hudBitmap.fillRect(0, 0, width / 6, height);
+  hudBitmap.fillStyle = "#FFFFFF";
+  hudBitmap.lineWidth = "6";
+  hudBitmap.strokeStyle = "red";
+  hudBitmap.stroke();
+  hudBitmap.font = "15px Georgia";
   hudBitmap.fillText(
-    "Point " + selectedObject.bouquetId,
-    width / 2,
-    height / 2
+    "Number of flowers : " + selectedObject.nbFlowers,
+    width / 12,
+    height / 3
+  );
+  hudBitmap.fillText("Flowers :", width / 24, height / 2.5);
+  selectedObject.Flowers.map((x, index) =>
+    hudBitmap.fillText(
+      x.replace(/ .*/, ""),
+      width / 16,
+      height / 2.5 +
+        (height / 1.8 - (height / 1.8 / selectedObject.nbFlowers) * index + 1)
+    )
   );
   //DRAW IMAGE
 
@@ -82,7 +98,7 @@ function onSelectedObject(selectedObject) {
   image.src = "../img/data_img/" + selectedObject.bouquetId + ".png";
 
   function drawImageActualSize() {
-    hudBitmap.drawImage(this, 10, 10, width / 7, height / 4);
+    hudBitmap.drawImage(this, 5, 5, width / 7, height / 4);
   }
 }
 
@@ -163,22 +179,21 @@ function onclick(event) {
     });
     hudBitmap.clearRect(0, 0, width, height);
     deleteObjectByName("link");
-  }
+    var intersects_link = raycaster.intersectObjects(currentLinks, true);
+    if (intersects_link.length > 0) {
+      selectedLink = intersects_link[0];
+      t = 0;
 
-  var intersects_link = raycaster.intersectObjects(currentLinks, true);
-  if (intersects_link.length > 0) {
-    selectedLink = intersects_link[0];
-    t = 0;
-
-    json = selectedLink.object.geometry.toJSON();
-    dataPoints.map(i => {
-      if (JSON.stringify(i.position) == JSON.stringify(json.path.v2)) {
-        onSelectedObject(i);
-      } else {
-      }
-    });
-  } else {
-    console.log("NO SELECTED LINK");
+      json = selectedLink.object.geometry.toJSON();
+      dataPoints.map(i => {
+        if (JSON.stringify(i.position) == JSON.stringify(json.path.v2)) {
+          onSelectedObject(i);
+        } else {
+        }
+      });
+    } else {
+      console.log("NO SELECTED LINK");
+    }
   }
 }
 
@@ -256,8 +271,8 @@ function createDataSupport(bouquet) {
     })
   );
   coeff = createCoordonates(bouquet);
-  var max = 10;
-  var min = 1;
+  var max = 1;
+  var min = 0;
   /*FULL RANDOM CLASSIFICATION*/
   /*
   randX = Math.random() * window.innerWidth;
@@ -281,6 +296,11 @@ function createDataSupport(bouquet) {
   object.position.y = randY;
   object.position.z = randZ;
   object["bouquetId"] = bouquet.id;
+  object["nbFlowers"] = bouquet.nbFlowers;
+  object["Flowers"] = bouquet.Flowers;
+  console.log(
+    "NEW BOUQUET CREATED : " + JSON.stringify(object.position, 4, null)
+  );
 
   dataPoints.push(object);
   scene.add(object);
