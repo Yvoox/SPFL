@@ -4,6 +4,8 @@ let raycaster;
 let dataPoints = []; //Array of all dataPoints
 let currentLinks = []; //Array of links for the current point
 
+let speciesArray = [];
+
 let selectedObject; //contain the last selected item
 
 let camera, scene, renderer;

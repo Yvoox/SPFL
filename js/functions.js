@@ -4,6 +4,18 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function createCoordonates(bouquet) {
+  //TODO
+  var coeff = 0;
+  bouquet.Flowers.map(it => {
+    speciesArray.map((species, index) => {
+      if (JSON.stringify(it).includes(species)) coeff += index;
+    });
+  });
+
+  return coeff;
+}
+
 //TODO MODIFY TOSCREENXY
 function toScreenXY(position, camera) {
   /*var pos = position.clone();
@@ -243,9 +255,27 @@ function createDataSupport(bouquet) {
       blending: THREE.AdditiveBlending
     })
   );
+  coeff = createCoordonates(bouquet);
+  var max = 10;
+  var min = 1;
+  /*FULL RANDOM CLASSIFICATION*/
+  /*
   randX = Math.random() * window.innerWidth;
   randY = Math.random() * window.innerHeight;
   randZ = Math.random() * 800 - 400;
+  */
+  /*COEFF CLASSIFICATION*/
+
+  randX = (Math.random() * (max - min) + min) * coeff;
+  randY = (Math.random() * (max - min) + min) * coeff;
+  randZ = (Math.random() * (max - min) + min) * coeff;
+
+  /* LINEAR COOL REPRESENTATION */
+  /*
+  randX = 10 * coeff;
+  randY = 10 * coeff;
+  randZ = 10 * coeff;
+  */
 
   object.position.x = randX;
   object.position.y = randY;

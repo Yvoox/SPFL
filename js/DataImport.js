@@ -56,17 +56,6 @@ function loadJSON(path, callback) {
 
 function createDataSet() {
   let bouquets = [];
-  //var flower1 = new Flower("123", "flower1", "blue");
-  //var flower2 = new Flower("234", "flower2", "red");
-  //var flower3 = new Flower("345", "flower3", "yellow");
-
-  //var bouquet1 = new Bouquet("1", { flower1, flower2 });
-  //var bouquet2 = new Bouquet("2", { flower1, flower3 });
-  //var bouquet3 = new Bouquet("3", { flower1, flower3 });
-
-  //bouquets.push(bouquet1);
-  //bouquets.push(bouquet2);
-  //bouquets.push(bouquet3);
 
   var request = new XMLHttpRequest();
 
@@ -96,4 +85,23 @@ function createDataSet() {
 
   request.send();
   return bouquets;
+}
+
+function initSpeciesArray() {
+  var request = new XMLHttpRequest();
+
+  request.open("GET", "http://127.0.0.1:3000/species", false);
+  request.onload = function() {
+    var data = JSON.parse(this.response);
+
+    if (request.status >= 200 && request.status < 400) {
+      data.forEach(species => {
+        speciesArray.push(species.species);
+      });
+    } else {
+      console.log("error status : " + request.status);
+    }
+  };
+
+  request.send();
 }
