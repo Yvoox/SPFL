@@ -34,7 +34,6 @@ function toScreenXY(position, camera) {
     position.z - Math.abs(objectSize / Math.sin(fov / 2))
   );
 
-
   return pos;
 }
 
@@ -154,7 +153,7 @@ function drawSplines(selectedObject) {
       var tube = new THREE.TubeGeometry(curveQuad, 40, 1, 20, false);
       var mesh = new THREE.Mesh(
         tube,
-        new THREE.MeshNormalMaterial({ opacity: 0.6, transparent: true })
+        new THREE.MeshLambertMaterial({ opacity: 0.6, transparent: true })
       );
       currentLinks.push(mesh);
       mesh.name = "link";
@@ -264,15 +263,15 @@ function createDataSupport(bouquet) {
   var object = new THREE.Mesh(
     dataGeometry,
     new THREE.MeshLambertMaterial({
+      //transparent: true,
       color: Math.random() * 0xffffff,
-      transparent: true,
       blending: THREE.AdditiveBlending
     })
   );
   coeff = createCoordonates(bouquet);
   var max = 1;
   var min = 0;
-  currBouquet = bouquets.findIndex(arr => arr === bouquet)
+  currBouquet = bouquets.findIndex(arr => arr === bouquet);
   /*FULL RANDOM CLASSIFICATION*/
   /*
   randX = Math.random() * window.innerWidth;
@@ -281,12 +280,12 @@ function createDataSupport(bouquet) {
   */
   /*COEFF CLASSIFICATION*/
 
-  console.log(bouquetPositions[currBouquet][0] );
+  console.log(bouquetPositions[currBouquet][0]);
 
   randX = bouquetPositions[currBouquet][0] * 20000;
-  randY = bouquetPositions[currBouquet][1]* 20000;
-  randZ = bouquetPositions[currBouquet][2]*20000;
-/*
+  randY = bouquetPositions[currBouquet][1] * 20000;
+  randZ = bouquetPositions[currBouquet][2] * 20000;
+  /*
   randX = (Math.random() * (max - min) + min) * coeff;
   randY = (Math.random() * (max - min) + min) * coeff;
   randZ = (Math.random() * (max - min) + min) * coeff;
@@ -361,7 +360,8 @@ function init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
   //var light = new THREE.DirectionalLight(0xffffff, 1);
-  var light = new THREE.AmbientLight(0xffffff);
+  //var light = new THREE.AmbientLight(0xffffff);
+  var light = new THREE.HemisphereLight(0xffffbb, 0x080820, 5);
   //  light.position.set(1, 1, 1);
   scene.add(light);
 
