@@ -26,15 +26,14 @@ function toScreenXY(position, camera) {
   projScreenMat.multiplyVector3(pos);*/
 
   var fov = camera.fov * (Math.PI / 180);
-  var objectSize = 100; //to change the zoom distance
+  var objectSize = 175; //to change the zoom distance
 
   var pos = new THREE.Vector3(
-    position.x + Math.abs(objectSize / Math.sin(fov / 2)),
-    position.y + Math.abs(objectSize / Math.sin(fov / 2)),
-    position.z + Math.abs(objectSize / Math.sin(fov / 2))
+    position.x - Math.abs(objectSize / Math.sin(fov / 2)),
+    position.y - Math.abs(objectSize / Math.sin(fov / 2)),
+    position.z - Math.abs(objectSize / Math.sin(fov / 2))
   );
 
-  console.log("POS : " + JSON.stringify(pos));
 
   return pos;
 }
@@ -273,6 +272,7 @@ function createDataSupport(bouquet) {
   coeff = createCoordonates(bouquet);
   var max = 1;
   var min = 0;
+  currBouquet = bouquets.findIndex(arr => arr === bouquet)
   /*FULL RANDOM CLASSIFICATION*/
   /*
   randX = Math.random() * window.innerWidth;
@@ -281,10 +281,16 @@ function createDataSupport(bouquet) {
   */
   /*COEFF CLASSIFICATION*/
 
+  console.log(bouquetPositions[currBouquet][0] );
+
+  randX = bouquetPositions[currBouquet][0] * 20000;
+  randY = bouquetPositions[currBouquet][1]* 20000;
+  randZ = bouquetPositions[currBouquet][2]*20000;
+/*
   randX = (Math.random() * (max - min) + min) * coeff;
   randY = (Math.random() * (max - min) + min) * coeff;
   randZ = (Math.random() * (max - min) + min) * coeff;
-
+*/
   /* LINEAR COOL REPRESENTATION */
   /*
   randX = 10 * coeff;

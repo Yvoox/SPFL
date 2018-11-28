@@ -105,3 +105,43 @@ function initSpeciesArray() {
 
   request.send();
 }
+/*
+function initBouquetsPositions() {
+  var request = new XMLHttpRequest();
+
+  request.open("GET", "http://127.0.0.1:5000/positions", false);
+  request.onload = function() {
+    var data = JSON.parse(this.response);
+
+    if (request.status >= 200 && request.status < 400) {
+      data.forEach(species => {
+        console.log(JSON.stringify(data, 4, null));
+        bouquetPositions.push(species.species);
+      });
+    } else {
+      console.log("error status : " + request.status);
+    }
+  };
+
+  request.send();
+}*/
+
+function initBouquetsPositions() {
+  var request = new XMLHttpRequest();
+
+  request.open("GET", "http://127.0.0.1:5000/positions", false);
+  request.onload = function() {
+    var data = JSON.parse(this.response);
+
+    if (request.status >= 200 && request.status < 400) {
+      data.forEach(curr => {
+        console.log(JSON.stringify(curr, 4, null));
+        bouquetPositions.push(curr);
+      });
+    } else {
+      console.log("error status : " + request.status);
+    }
+  };
+
+  request.send();
+}
